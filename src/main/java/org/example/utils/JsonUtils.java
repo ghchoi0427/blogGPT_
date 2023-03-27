@@ -9,8 +9,12 @@ public class JsonUtils {
         String content = null;
         try {
             String[] choices = getArrayFromJson(responseBody, "choices");
-            String message = getObjectFromJson(choices[0], "message");
-            content = getObjectFromJson(message, "content");
+            if (choices.length > 0) {
+                String message = getObjectFromJson(choices[0], "message");
+                if (message != null) {
+                    content = getObjectFromJson(message, "content");
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -18,9 +22,17 @@ public class JsonUtils {
     }
 
     public static String extractURLFromJSON(String jsonStr) {
-        String[] dataArray = getArrayFromJson(jsonStr, "data");
-        String dataObj = dataArray[0];
-        return getObjectFromJson(dataObj, "url");
+        String url = null;
+        try {
+            String[] dataArray = getArrayFromJson(jsonStr, "data");
+            if (dataArray.length > 0) {
+                String dataObj = dataArray[0];
+                url = getObjectFromJson(dataObj, "url");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return url;
     }
 
     private static String[] getArrayFromJson(String jsonString, String key) {
