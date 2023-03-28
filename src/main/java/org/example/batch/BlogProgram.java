@@ -17,7 +17,6 @@ public class BlogProgram {
     private final ExecutorService executorService;
     private final ScheduledExecutorService scheduledExecutorService;
 
-    private List<String> topics = Topics.getTopics();
     private int index = 0;
 
     public BlogProgram(ChatApi chatApi, ImageApi imageApi, int numThreads) {
@@ -39,23 +38,18 @@ public class BlogProgram {
 
     public void execute() {
         System.out.println("upload initiated");
-        String topic = topics.get((index++) % topics.size());
-        Future<String> imageUrlFuture = executorService.submit(() -> imageApi.run(topic));
-        Future<String> contentFuture = executorService.submit(() -> chatApi.run(topic, 1000));
+        Future<String[]> contentFuture = executorService.submit(() -> chatApi.getContent(1000));
 
-        String imageUrl;
-        String content;
+        String[] result;
         try {
-            imageUrl = imageUrlFuture.get();
-            content = contentFuture.get();
+            result = contentFuture.get();
         } catch (InterruptedException | ExecutionException e) {
             System.err.println(e);
             throw new RuntimeException(e);
         }
 
-        String htmlContent = HtmlUtil.htmlFormatter(imageUrl, content);
         try {
-            BlogWriter.upload(topic, htmlContent);
+            BlogWriter.upload(result[0], result[1]);
         } catch (IOException | InterruptedException e) {
             System.err.println(e);
             throw new RuntimeException(e);

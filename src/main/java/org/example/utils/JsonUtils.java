@@ -2,23 +2,20 @@ package org.example.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class JsonUtils {
 
-    public static String getResponseContent(String responseBody) {
+    public static String getResponseContent(String jsonString) {
         String content = null;
-        try {
-            String[] choices = getArrayFromJson(responseBody, "choices");
-            if (choices.length > 0) {
-                String message = getObjectFromJson(choices[0], "message");
-                if (message != null) {
-                    content = getObjectFromJson(message, "content");
-                }
+        int index = jsonString.indexOf("content\":\"");
+        if (index >= 0) {
+            int endIndex = jsonString.indexOf("\"", index + 10);
+            if (endIndex >= 0) {
+                content = jsonString.substring(index + 10, endIndex);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        return content;
+        return Objects.requireNonNullElse(content, "Content not found");
     }
 
     public static String extractURLFromJSON(String jsonStr) {

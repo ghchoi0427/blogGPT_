@@ -11,17 +11,16 @@ import java.net.http.HttpResponse;
 public class ChatApi {
     private static final String OPENAI_API_KEY = System.getenv("OPENAI_API_KEY");
 
-    public String run(String topic, int maxTokens) {
+    public String run(String prompt, int maxTokens) {
         String url = "https://api.openai.com/v1/chat/completions";
         String model = "gpt-3.5-turbo";
-        String content = "write an essay about: " + topic + "in form of html tags";
         String role = "user";
 
         String requestBody = "{"
                 + "\"model\": \"" + model + "\","
                 + "\"messages\": [{"
                 + "\"role\": \"" + role + "\","
-                + "\"content\": \"" + content + "\""
+                + "\"content\": \"" + prompt + "\""
                 + "}],"
                 + "\"max_tokens\": " + maxTokens
                 + "}";
@@ -41,6 +40,16 @@ public class ChatApi {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private String getTopic() {
+        return run("recommend me a topic about information technology", 500);
+    }
+
+    public String[] getContent(int maxToken) {
+        String topic = getTopic();
+        String content = run("write an essay about " + topic + "in html format", maxToken);
+        return new String[]{topic, content};
     }
 
 
